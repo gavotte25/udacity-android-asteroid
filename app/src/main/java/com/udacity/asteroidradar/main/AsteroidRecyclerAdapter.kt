@@ -27,7 +27,7 @@ class AsteroidRecyclerAdapter: ListAdapter<Asteroid, AsteroidRecyclerAdapter.Ast
     class AsteroidViewHolder private constructor(private val binding: ViewItemBinding): RecyclerView.ViewHolder(binding.root) {
         companion object {
             fun from(parent: ViewGroup): AsteroidViewHolder {
-                val binding = ViewItemBinding.inflate(LayoutInflater.from(parent.context))
+                val binding = ViewItemBinding.inflate(LayoutInflater.from(parent.context),parent, false)
                 Log.i("debug here", "AsteroidViewHolder.from called")
                 return AsteroidViewHolder(binding)
             }

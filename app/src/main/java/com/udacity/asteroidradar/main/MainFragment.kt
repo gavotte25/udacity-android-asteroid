@@ -16,12 +16,14 @@ class MainFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val binding = FragmentMainBinding.inflate(inflater)
+        val binding = FragmentMainBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
 
         binding.viewModel = viewModel
 
-        binding.asteroidRecycler.adapter = AsteroidRecyclerAdapter()
+        val adapter = AsteroidRecyclerAdapter()
+
+        binding.asteroidRecycler.adapter = adapter
 
         setHasOptionsMenu(true)
         Log.i("debug here", "fragment view inlated")
