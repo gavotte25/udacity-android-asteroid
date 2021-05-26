@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.udacity.asteroidradar.R
 import com.udacity.asteroidradar.databinding.FragmentMainBinding
 
@@ -21,7 +22,9 @@ class MainFragment : Fragment() {
 
         binding.viewModel = viewModel
 
-        val adapter = AsteroidRecyclerAdapter()
+        val adapter = AsteroidRecyclerAdapter(Listener{
+            findNavController().navigate(MainFragmentDirections.actionShowDetail(it))
+        })
 
         binding.asteroidRecycler.adapter = adapter
 
@@ -36,6 +39,11 @@ class MainFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        viewModel.updateFilter(when(item.itemId) {
+            R.id.show_saved_menu -> Filter.SAVED
+            R.id.show_today_menu -> Filter.TODAY
+            else -> Filter.WEEK
+        })
         return true
     }
 }
