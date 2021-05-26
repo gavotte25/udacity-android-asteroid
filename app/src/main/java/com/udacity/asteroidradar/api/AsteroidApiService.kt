@@ -2,6 +2,7 @@ package com.udacity.asteroidradar.api
 
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import com.udacity.asteroidradar.Config
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.PictureOfDay
 import kotlinx.coroutines.GlobalScope
@@ -27,11 +28,11 @@ interface AsteroidApiService {
     suspend fun getAsteroids(
             @Query("start_date") startDate: String,
             @Query("end_date") endDate: String,
-            @Query("api_key") apiKey: String = Constants.API_KEY
+            @Query("api_key") apiKey: String = Config.API_KEY
     ): String
 
     @GET("planetary/apod")
-    suspend fun getPictureOfTheDay(@Query("api_key") apiKey: String = Constants.API_KEY): PictureOfDay
+    suspend fun getPictureOfTheDay(@Query("api_key") apiKey: String = Config.API_KEY): PictureOfDay
 }
 
 object AsteroidApi {
