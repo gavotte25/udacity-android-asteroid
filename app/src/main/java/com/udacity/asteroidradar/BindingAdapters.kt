@@ -44,7 +44,7 @@ fun bindTextViewToDisplayVelocity(textView: TextView, number: Double) {
 }
 
 @BindingAdapter("dataList")
-fun bindRecyclerViewToSubmitList(recyclerView: RecyclerView, asteroidList: ArrayList<Asteroid>?) {
+fun bindRecyclerViewToSubmitList(recyclerView: RecyclerView, asteroidList: List<Asteroid>?) {
     val adapter = recyclerView.adapter as AsteroidRecyclerAdapter
     adapter.submitList(asteroidList)
 }
@@ -52,7 +52,9 @@ fun bindRecyclerViewToSubmitList(recyclerView: RecyclerView, asteroidList: Array
 @BindingAdapter("picOfTheDay")
 fun bindPImageViewToPicOfTheDay(imageView: ImageView, imgUrl: String?) {
     if (imgUrl != null) {
-        Picasso.with(imageView.context).load(imgUrl).into(imageView)
+        Picasso.with(imageView.context).load(imgUrl)
+            .placeholder(R.drawable.placeholder_picture_of_day)
+            .error(R.drawable.placeholder_picture_of_day).into(imageView)
     }
     else {
         imageView.setImageResource(R.drawable.placeholder_picture_of_day)

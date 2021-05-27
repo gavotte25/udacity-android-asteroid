@@ -1,29 +1,28 @@
 package com.udacity.asteroidradar.main
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import android.app.Application
+import androidx.lifecycle.*
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.PictureOfDay
 import com.udacity.asteroidradar.api.AsteroidApi
 import com.udacity.asteroidradar.api.NetworkUtils
+import com.udacity.asteroidradar.database.AsteroidDatabase
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.util.*
-import kotlin.collections.ArrayList
 
 enum class Filter {WEEK, TODAY, SAVED}
 
-class MainViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val  database = AsteroidDatabase.getInstance(application).asteroidDatabaseDao
     private var _pictureOfDay = MutableLiveData<PictureOfDay>()
     val pictureOfDay: LiveData<PictureOfDay>
         get() = _pictureOfDay
 
-    private val _asteroidList = MutableLiveData<ArrayList<Asteroid>>()
-    val asteroidList: LiveData<ArrayList<Asteroid>>
+    private val _asteroidList = MutableLiveData<List<Asteroid>>()
+    val asteroidList: LiveData<List<Asteroid>>
         get() = _asteroidList
 
     private lateinit var today: String
@@ -40,6 +39,7 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             val jsonString = AsteroidApi.retrofitScalarService.getAsteroids(startDate, endDate)
             _asteroidList.value = NetworkUtils.parseJsonToAsteroidList(JSONObject(jsonString))
+            updateDatabase()
         }
     }
 
@@ -61,12 +61,27 @@ class MainViewModel : ViewModel() {
     }
 
     fun updateFilter(filter: Filter) {
-        updateDateStrings()
-        when (filter) {
-            Filter.SAVED -> {_asteroidList.value = null}
-            Filter.TODAY -> getAsteroids(today, today)
-            else -> getAsteroids(today, defaultEndDate)
+        viewModelScope.launch {
+            updateDateStrings()
+            when (filter) {
+                Filter.SAVED -> getSavedAsteroid()
+                Filter.TODAY -> getAsteroids(today, today)
+                else -> getAsteroids(today, defaultEndDate)
+            }
         }
+    }
+
+    private suspend fun updateDatabase() {
+        _asteroidList.value?.apply {
+            for (i in this) {
+                database.insert(i)
+            }
+        }
+    }
+
+    private suspend fun getSavedAsteroid() {
+        val result = database.getAllAsteroids()
+        _asteroidList.value = result
     }
 
 }

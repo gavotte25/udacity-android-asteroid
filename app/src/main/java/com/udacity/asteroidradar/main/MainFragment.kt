@@ -1,7 +1,6 @@
 package com.udacity.asteroidradar.main
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -29,7 +28,6 @@ class MainFragment : Fragment() {
         binding.asteroidRecycler.adapter = adapter
 
         setHasOptionsMenu(true)
-        Log.i("debug here", "fragment view inlated")
         return binding.root
     }
 
