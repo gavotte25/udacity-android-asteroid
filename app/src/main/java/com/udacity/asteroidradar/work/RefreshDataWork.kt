@@ -1,7 +1,6 @@
 package com.udacity.asteroidradar.work
 
 import android.content.Context
-import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.udacity.asteroidradar.database.AsteroidDatabase
@@ -20,7 +19,6 @@ class RefreshDataWorker(appContext: Context, params: WorkerParameters): Coroutin
         return try {
             repository.refreshAsteroids()
             repository.refreshPicOfDay()
-            Log.i("debug here", "triggered")
             Result.success()
         }
             catch(e: HttpException) {
