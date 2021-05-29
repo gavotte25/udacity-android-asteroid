@@ -1,7 +1,7 @@
 package com.udacity.asteroidradar.repository
 
 import androidx.lifecycle.Transformations
-import com.udacity.asteroidradar.PictureOfDay
+import androidx.lifecycle.map
 import com.udacity.asteroidradar.api.AsteroidApi
 import com.udacity.asteroidradar.api.NetworkParams.getNetWorkParams
 import com.udacity.asteroidradar.api.asDatabaseModel
@@ -29,16 +29,18 @@ class AsteroidRepository(private val database: AsteroidDatabaseDao) {
 
     val asteroids = Transformations.map(database.getAsteroids()) { it.asDomainModel() }
 
-    suspend fun getPictureOfTheDay(): PictureOfDay? {
-        return withContext(Dispatchers.IO) {
+    val pictureOfDay = database.getPicOfDay().map { it?.asDomainModel() }
+
+    suspend fun refreshPicOfDay() {
+        withContext(Dispatchers.IO) {
          try {
-                val pic = AsteroidApi.retrofitMoshiService.getPictureOfTheDay()
-                when (pic.mediaType) {
-                    "image" -> pic
-                    else -> null
-                }
+            val pic = AsteroidApi.retrofitMoshiService.getPictureOfTheDay().asDatabaseModel()
+            if (pic.mediaType == "image") {
+                database.insertPic(pic)
+                database.deletePic(pic.url)
             }
-        catch (e: UnknownHostException){null}
+        }
+        catch (e: UnknownHostException){}
         }
     }
 

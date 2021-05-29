@@ -16,4 +16,15 @@ interface AsteroidDatabaseDao {
     @Query("SELECT * FROM asteroid_table WHERE DATE(close_approach_date) >= DATE('now') ORDER BY DATE(close_approach_date)")
     fun getAsteroids(): LiveData<List<DatabaseAsteroid>>
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertPic(pic: DatabasePictureOfDay)
+
+    @Query("SELECT * FROM picture_of_the_day_table LIMIT 1")
+    fun getPicOfDay(): LiveData<DatabasePictureOfDay?>
+
+    @Query("DELETE FROM picture_of_the_day_table WHERE url NOT LIKE :exceptUrl")
+    fun deletePic(exceptUrl: String)
+
+
+
 }

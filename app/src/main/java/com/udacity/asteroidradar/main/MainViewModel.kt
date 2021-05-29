@@ -1,11 +1,8 @@
 package com.udacity.asteroidradar.main
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.*
 import com.udacity.asteroidradar.Asteroid
-import com.udacity.asteroidradar.PictureOfDay
-import com.udacity.asteroidradar.api.NetworkParams
 import com.udacity.asteroidradar.api.NetworkParams.dateFormat
 import com.udacity.asteroidradar.database.AsteroidDatabase
 import com.udacity.asteroidradar.repository.AsteroidRepository
@@ -25,10 +22,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val filteredAsteroidList: LiveData<List<Asteroid>>
         get() = _filteredAsteroidList
 
-    private val _pictureOfTheDay = MutableLiveData<PictureOfDay>()
-    val pictureOfTheDay: LiveData<PictureOfDay>
-        get() = _pictureOfTheDay
-
+    val pictureOfTheDay = asteroidRepository.pictureOfDay
 
     init {
         filter.asteroids.observeForever{
@@ -37,7 +31,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         viewModelScope.launch {
             asteroidRepository.refreshAsteroids()
-            _pictureOfTheDay.value = asteroidRepository.getPictureOfTheDay()
+            asteroidRepository.refreshPicOfDay()
         }
     }
 

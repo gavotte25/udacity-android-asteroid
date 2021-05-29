@@ -4,9 +4,6 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import com.udacity.asteroidradar.Config
 import com.udacity.asteroidradar.Constants
-import com.udacity.asteroidradar.PictureOfDay
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
@@ -34,7 +31,7 @@ interface AsteroidApiScalarService {
 
 interface AsteroidApiMoshiService {
     @GET("planetary/apod")
-    suspend fun getPictureOfTheDay(@Query("api_key") apiKey: String = Config.API_KEY): PictureOfDay
+    suspend fun getPictureOfTheDay(@Query("api_key") apiKey: String = Config.API_KEY): NetworkPictureOfDay
 }
 
 object AsteroidApi {
