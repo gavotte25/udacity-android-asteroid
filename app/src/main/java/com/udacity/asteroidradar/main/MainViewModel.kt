@@ -1,87 +1,72 @@
 package com.udacity.asteroidradar.main
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.*
 import com.udacity.asteroidradar.Asteroid
-import com.udacity.asteroidradar.Constants
 import com.udacity.asteroidradar.PictureOfDay
-import com.udacity.asteroidradar.api.AsteroidApi
-import com.udacity.asteroidradar.api.NetworkUtils
+import com.udacity.asteroidradar.api.NetworkParams
+import com.udacity.asteroidradar.api.NetworkParams.dateFormat
 import com.udacity.asteroidradar.database.AsteroidDatabase
+import com.udacity.asteroidradar.repository.AsteroidRepository
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 import java.util.*
 
 enum class Filter {WEEK, TODAY, SAVED}
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val  database = AsteroidDatabase.getInstance(application).asteroidDatabaseDao
-    private var _pictureOfDay = MutableLiveData<PictureOfDay>()
-    val pictureOfDay: LiveData<PictureOfDay>
-        get() = _pictureOfDay
+    private val database = AsteroidDatabase.getInstance(application).asteroidDatabaseDao
+    private val asteroidRepository = AsteroidRepository(database)
 
-    private val _asteroidList = MutableLiveData<List<Asteroid>>()
-    val asteroidList: LiveData<List<Asteroid>>
-        get() = _asteroidList
+    private val _filteredAsteroidList = MutableLiveData<List<Asteroid>>()
+    val filteredAsteroidList: LiveData<List<Asteroid>>
+        get() = _filteredAsteroidList
 
-    private lateinit var today: String
-    private lateinit var defaultEndDate: String
-    private lateinit var calendar: Calendar
+    private val _pictureOfTheDay = MutableLiveData<PictureOfDay>()
+    val pictureOfTheDay: LiveData<PictureOfDay>
+        get() = _pictureOfTheDay
+
+    private lateinit var allAsteroids: List<Asteroid>
 
     init {
-        getPictureOfTheDate()
-        updateDateStrings()
-        getAsteroids(today, defaultEndDate)
-    }
-
-    private fun getAsteroids(startDate: String, endDate: String) {
         viewModelScope.launch {
-            val jsonString = AsteroidApi.retrofitScalarService.getAsteroids(startDate, endDate)
-            _asteroidList.value = NetworkUtils.parseJsonToAsteroidList(JSONObject(jsonString))
-            updateDatabase()
+            asteroidRepository.refreshAsteroids()
+            allAsteroids = asteroidRepository.getAsteroids()
+            _filteredAsteroidList.value = allAsteroids
+            _pictureOfTheDay.value = asteroidRepository.getPictureOfTheDay()
         }
-    }
 
-    private fun getPictureOfTheDate() {
-        viewModelScope.launch {
-            val result = AsteroidApi.retrofitMoshiService.getPictureOfTheDay()
-            _pictureOfDay.value = when (result.mediaType) {
-                "image" -> result
-                else -> null
-            }
-        }
-    }
-
-    private fun updateDateStrings() {
-        calendar = Calendar.getInstance()
-        today = NetworkUtils.dateFormat.format(calendar.time)
-        calendar.add(Calendar.DATE, Constants.DEFAULT_END_DATE_DAYS)
-        defaultEndDate = NetworkUtils.dateFormat.format(calendar.time)
     }
 
     fun updateFilter(filter: Filter) {
         viewModelScope.launch {
-            updateDateStrings()
+            if (_filteredAsteroidList.value == null) return@launch
             when (filter) {
-                Filter.SAVED -> getSavedAsteroid()
-                Filter.TODAY -> getAsteroids(today, today)
-                else -> getAsteroids(today, defaultEndDate)
+                Filter.SAVED -> {
+                    _filteredAsteroidList.value = allAsteroids
+                }
+                Filter.TODAY -> filterToday()
+                else -> filterWeek()
             }
         }
     }
 
-    private suspend fun updateDatabase() {
-        _asteroidList.value?.apply {
-            for (i in this) {
-                database.insert(i)
-            }
+    private fun filterToday() {
+        _filteredAsteroidList.value = allAsteroids.filter{
+            it.closeApproachDate == dateFormat.format(Date())
         }
     }
 
-    private suspend fun getSavedAsteroid() {
-        val result = database.getAllAsteroids()
-        _asteroidList.value = result
+    private fun filterWeek() {
+        _filteredAsteroidList.value = allAsteroids.filter{
+            val calendar = Calendar.getInstance()
+            calendar.add(Calendar.DAY_OF_YEAR, 7)
+            val endOfWeek = calendar.time
+            val today = Date()
+            val approachDate = requireNotNull(dateFormat.parse(it.closeApproachDate))
+            (approachDate >= today) && (approachDate <= endOfWeek)
+        }
     }
 
 }

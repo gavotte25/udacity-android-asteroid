@@ -23,19 +23,21 @@ private val retrofitMoshi = Retrofit.Builder()
         .addConverterFactory(MoshiConverterFactory.create(moshi))
         .baseUrl(Constants.BASE_URL).build()
 
-interface AsteroidApiService {
+interface AsteroidApiScalarService {
     @GET("neo/rest/v1/feed")
     suspend fun getAsteroids(
             @Query("start_date") startDate: String,
             @Query("end_date") endDate: String,
             @Query("api_key") apiKey: String = Config.API_KEY
     ): String
+}
 
+interface AsteroidApiMoshiService {
     @GET("planetary/apod")
     suspend fun getPictureOfTheDay(@Query("api_key") apiKey: String = Config.API_KEY): PictureOfDay
 }
 
 object AsteroidApi {
-    val retrofitScalarService: AsteroidApiService by lazy { retrofitScalar.create(AsteroidApiService::class.java) }
-    val retrofitMoshiService: AsteroidApiService by lazy { retrofitMoshi.create(AsteroidApiService::class.java) }
+    val retrofitScalarService: AsteroidApiScalarService by lazy { retrofitScalar.create(AsteroidApiScalarService::class.java) }
+    val retrofitMoshiService: AsteroidApiMoshiService by lazy { retrofitMoshi.create(AsteroidApiMoshiService::class.java) }
 }
