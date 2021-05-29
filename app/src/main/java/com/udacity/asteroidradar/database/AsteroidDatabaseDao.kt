@@ -14,6 +14,6 @@ interface AsteroidDatabaseDao {
     suspend fun insert(vararg asteroid: DatabaseAsteroid)
 
     @Query("SELECT * FROM asteroid_table WHERE DATE(close_approach_date) >= DATE('now') ORDER BY DATE(close_approach_date)")
-    suspend fun getAsteroids(): List<DatabaseAsteroid>
+    fun getAsteroids(): LiveData<List<DatabaseAsteroid>>
 
 }

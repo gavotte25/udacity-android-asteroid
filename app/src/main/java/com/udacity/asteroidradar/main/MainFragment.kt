@@ -39,9 +39,9 @@ class MainFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         viewModel.updateFilter(when(item.itemId) {
-            R.id.show_saved_menu -> Filter.SAVED
-            R.id.show_today_menu -> Filter.TODAY
-            else -> Filter.WEEK
+            R.id.show_saved_menu -> FilterStatus.SAVED
+            R.id.show_today_menu -> FilterStatus.TODAY
+            else -> FilterStatus.WEEK
         })
         return true
     }

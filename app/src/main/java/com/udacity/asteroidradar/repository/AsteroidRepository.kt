@@ -1,10 +1,6 @@
 package com.udacity.asteroidradar.repository
 
-import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
-import androidx.lifecycle.liveData
-import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.PictureOfDay
 import com.udacity.asteroidradar.api.AsteroidApi
 import com.udacity.asteroidradar.api.NetworkParams.getNetWorkParams
@@ -15,27 +11,34 @@ import com.udacity.asteroidradar.database.asDomainModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import java.net.UnknownHostException
 
 class AsteroidRepository(private val database: AsteroidDatabaseDao) {
 
     suspend fun refreshAsteroids() {
         withContext(Dispatchers.IO) {
-            val (startDate, endDate) = getNetWorkParams()
-            val jsonString = AsteroidApi.retrofitScalarService.getAsteroids(startDate, endDate)
-            val asteroidList = parseAsteroidsJsonResult(JSONObject(jsonString))
-            database.insert(*asteroidList.asDatabaseModel())
+            try {
+                val (startDate, endDate) = getNetWorkParams()
+                val jsonString = AsteroidApi.retrofitScalarService.getAsteroids(startDate, endDate)
+                val asteroidList = parseAsteroidsJsonResult(JSONObject(jsonString))
+                database.insert(*asteroidList.asDatabaseModel())
+            }
+            catch (e: UnknownHostException) {}
         }
     }
 
-    suspend fun getAsteroids(): List<Asteroid> {
-        return database.getAsteroids().asDomainModel()
-    }
+    val asteroids = Transformations.map(database.getAsteroids()) { it.asDomainModel() }
 
     suspend fun getPictureOfTheDay(): PictureOfDay? {
-        val result = AsteroidApi.retrofitMoshiService.getPictureOfTheDay()
-        return when (result.mediaType) {
-            "image" -> result
-            else -> null
+        return withContext(Dispatchers.IO) {
+         try {
+                val pic = AsteroidApi.retrofitMoshiService.getPictureOfTheDay()
+                when (pic.mediaType) {
+                    "image" -> pic
+                    else -> null
+                }
+            }
+        catch (e: UnknownHostException){null}
         }
     }
 
