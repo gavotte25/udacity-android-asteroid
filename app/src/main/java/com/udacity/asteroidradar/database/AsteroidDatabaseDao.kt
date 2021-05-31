@@ -16,6 +16,9 @@ interface AsteroidDatabaseDao {
     @Query("SELECT * FROM asteroid_table WHERE DATE(close_approach_date) >= DATE('now') ORDER BY DATE(close_approach_date)")
     fun getAsteroids(): LiveData<List<DatabaseAsteroid>>
 
+    @Query("DELETE FROM asteroid_table WHERE DATE(close_approach_date) < DATE('now')")
+    fun deleteOldAsteroids()
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertPic(pic: DatabasePictureOfDay)
 

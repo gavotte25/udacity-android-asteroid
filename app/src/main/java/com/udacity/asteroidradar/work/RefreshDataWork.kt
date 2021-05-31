@@ -17,8 +17,7 @@ class RefreshDataWorker(appContext: Context, params: WorkerParameters): Coroutin
         val database = AsteroidDatabase.getInstance(applicationContext).asteroidDatabaseDao
         val repository = AsteroidRepository(database)
         return try {
-            repository.refreshAsteroids()
-            repository.refreshPicOfDay()
+            repository.updateAsteroidsNext7Days()
             Result.success()
         }
             catch(e: HttpException) {
