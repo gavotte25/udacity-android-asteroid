@@ -4,7 +4,6 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.map
 import com.udacity.asteroidradar.api.AsteroidApi
 import com.udacity.asteroidradar.api.NetworkParams.getRefreshParams
-import com.udacity.asteroidradar.api.NetworkParams.getWorkerParams
 import com.udacity.asteroidradar.api.asDatabaseModel
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.AsteroidDatabaseDao
@@ -31,10 +30,13 @@ class AsteroidRepository(private val database: AsteroidDatabaseDao) {
     suspend fun updateAsteroidsNext7Days() {
         withContext(Dispatchers.IO) {
             try {
-                val (startDate, endDate) = getWorkerParams()
+                val (startDate, endDate) = getRefreshParams()
                 val jsonString = AsteroidApi.retrofitScalarService.getAsteroids(startDate, endDate)
                 val asteroidList = parseAsteroidsJsonResult(JSONObject(jsonString))
-                database.insert(*asteroidList.asDatabaseModel())
+                val asteroidListNext7Days = asteroidList.filter{
+                    it.closeApproachDate != startDate
+                } as ArrayList
+                database.insert(*asteroidListNext7Days.asDatabaseModel())
                 database.deleteOldAsteroids()
             }
             catch (e: UnknownHostException) {}

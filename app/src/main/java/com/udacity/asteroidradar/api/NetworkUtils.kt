@@ -66,12 +66,4 @@ object NetworkParams {
         return Pair(startDate, endDate)
     }
 
-    fun getWorkerParams(): Pair<String, String> {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, 1)
-        val startDate = dateFormat.format(calendar.time)
-        calendar.add(Calendar.DAY_OF_YEAR, 6)
-        val endDate = dateFormat.format(calendar.time)
-        return Pair(startDate, endDate)
-    }
 }
