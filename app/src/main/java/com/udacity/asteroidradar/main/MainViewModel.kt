@@ -40,7 +40,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _filteredAsteroidList.value = filter.filteredAsteroids
     }
 
-
     private class Filter(val asteroids: LiveData<List<Asteroid>>) {
         var mode = FilterStatus.WEEK
 
@@ -63,9 +62,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         private fun List<Asteroid>.filterWeek(): List<Asteroid>  {
             val calendar = Calendar.getInstance()
+            val todayString = dateFormat.format(calendar.time)
             calendar.add(Calendar.DAY_OF_YEAR, 6)
-            val endOfWeek = calendar.time
-            val today = Date()
+            val endOfWeekString = dateFormat.format(calendar.time)
+
+            val today = requireNotNull(dateFormat.parse(todayString))
+            val endOfWeek = requireNotNull(dateFormat.parse(endOfWeekString))
+
             return this.filter{
                 val approachDate = requireNotNull(dateFormat.parse(it.closeApproachDate))
                 (approachDate >= today) && (approachDate <= endOfWeek)

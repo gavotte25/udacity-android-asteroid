@@ -9,10 +9,13 @@ import com.udacity.asteroidradar.main.AsteroidRecyclerAdapter
 
 @BindingAdapter("statusIcon")
 fun bindAsteroidStatusImage(imageView: ImageView, isHazardous: Boolean) {
+    val context = imageView.context
     if (isHazardous) {
         imageView.setImageResource(R.drawable.ic_status_potentially_hazardous)
+        imageView.contentDescription = context.getString(R.string.potentially_hazardous_asteroid_image)
     } else {
         imageView.setImageResource(R.drawable.ic_status_normal)
+        imageView.contentDescription = context.getString(R.string.not_hazardous_asteroid_image)
     }
 }
 
@@ -50,13 +53,18 @@ fun bindRecyclerViewToSubmitList(recyclerView: RecyclerView, asteroidList: List<
 }
 
 @BindingAdapter("picOfTheDay")
-fun bindPImageViewToPicOfTheDay(imageView: ImageView, imgUrl: String?) {
-    if (imgUrl != null) {
-        Picasso.with(imageView.context).load(imgUrl)
+fun bindPImageViewToPicOfTheDay(imageView: ImageView, pic: PictureOfDay?) {
+    val context = imageView.context
+    if (pic != null) {
+        Picasso.with(imageView.context).load(pic.url)
             .placeholder(R.drawable.placeholder_picture_of_day)
             .error(R.drawable.placeholder_picture_of_day).into(imageView)
+        imageView.contentDescription = context
+                .getString(R.string.nasa_picture_of_day_content_description_format)
+                .format(pic.title)
     }
     else {
         imageView.setImageResource(R.drawable.placeholder_picture_of_day)
+        imageView.contentDescription = context.getString(R.string.nasa_picture_of_day_content_description_format)
     }
 }

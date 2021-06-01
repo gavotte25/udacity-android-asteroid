@@ -23,7 +23,7 @@ class AsteroidRepository(private val database: AsteroidDatabaseDao) {
                 val asteroidList = parseAsteroidsJsonResult(JSONObject(jsonString))
                 database.insert(*asteroidList.asDatabaseModel())
             }
-            catch (e: UnknownHostException) {}
+            catch (e: Exception) {}
         }
     }
 
@@ -39,7 +39,7 @@ class AsteroidRepository(private val database: AsteroidDatabaseDao) {
                 database.insert(*asteroidListNext7Days.asDatabaseModel())
                 database.deleteOldAsteroids()
             }
-            catch (e: UnknownHostException) {}
+            catch (e: Exception) {}
         }
     }
 
@@ -56,7 +56,7 @@ class AsteroidRepository(private val database: AsteroidDatabaseDao) {
                 database.deletePic(pic.url)
             }
         }
-        catch (e: UnknownHostException){}
+        catch (e: Exception){}
         }
     }
 

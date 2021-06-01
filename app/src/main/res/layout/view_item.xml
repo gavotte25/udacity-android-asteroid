@@ -45,6 +45,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
             android:textColor="@color/text_grey"
+            android:textSize="@dimen/small_text_size"
             android:text="@{asteroid.closeApproachDate}"
             app:layout_constraintEnd_toStartOf="@+id/potentHazardImg"
             app:layout_constraintStart_toStartOf="parent"
